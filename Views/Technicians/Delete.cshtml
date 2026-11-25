@@ -1,0 +1,4 @@
+@* Confirma a remoção da ficha técnica; a conta Identity continua a existir. *@
+@model HelpDeskPro.Models.Technician
+@{ ViewData["Title"] = "Remover técnico"; ViewData["ActivePage"] = "Technicians"; }
+<div class="page-header"><h1 class="page-header-title">Remover técnico</h1></div><div class="card"><div class="card-body"><p>Remover a associação de <strong>@Model.Utilizador?.NomeCompleto</strong> à equipa técnica?</p><p class="text-warning">A conta de utilizador não será eliminada.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><button type="submit" class="btn btn-danger">Remover associação</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form></div></div>

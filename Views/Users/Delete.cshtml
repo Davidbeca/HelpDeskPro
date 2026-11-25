@@ -1,0 +1,4 @@
+@* Confirma desativação segura da conta; a aplicação preserva o histórico de tickets. *@
+@model HelpDeskPro.Models.ApplicationUser
+@{ ViewData["Title"] = "Desativar utilizador"; ViewData["ActivePage"] = "Users"; }
+<div class="page-header"><h1 class="page-header-title">Desativar utilizador</h1></div><div class="card"><div class="card-body"><p>Desativar a conta de <strong>@Model.NomeCompleto</strong> (@Model.Email)?</p><p class="text-secondary">A conta e os tickets associados serão mantidos no histórico. O acesso será bloqueado.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><button type="submit" class="btn btn-danger">Desativar conta</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form></div></div>

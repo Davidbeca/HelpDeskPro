@@ -1,0 +1,4 @@
+@* Confirma a intenção de remover; mostra erros quando o equipamento tem tickets ligados. *@
+@model HelpDeskPro.Models.Equipment
+@{ ViewData["Title"] = "Eliminar equipamento"; ViewData["ActivePage"] = "Equipment"; }
+<div class="page-header"><h1 class="page-header-title">Eliminar equipamento</h1></div><div class="card"><div class="card-body">@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }<p>Eliminar <strong>@Model.Nome</strong> (@Model.NumeroSerie)?</p><p class="text-danger">Esta ação não pode ser anulada.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post"><button type="submit" class="btn btn-danger">Eliminar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form></div></div>

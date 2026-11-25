@@ -1,0 +1,113 @@
+@* Formulário de criação: opções e permissões são fornecidas pelo TicketsController. *@
+@model HelpDeskPro.Models.Ticket
+
+@{
+    ViewData["Title"] = "Criar Ticket";
+    ViewData["ActivePage"] = "Tickets";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Novo Ticket</h1>
+    <div class="page-header-description">Registe um novo pedido de suporte técnico</div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @if (ViewData["IsAdmin"] as bool? == true)
+                    {
+                        <div class="row mb-3">
+                            <label class="col-form-label col-md-3">Cliente</label>
+                            <div class="col-md-9">
+                                <select name="ClienteId" class="form-select" required>
+                                    <option value="">Selecionar cliente</option>
+                                    @foreach (var cliente in ViewData["Clientes"] as List<HelpDeskPro.Models.ApplicationUser> ?? new())
+                                    {
+                                        <option value="@cliente.Id">@cliente.NomeCompleto (@cliente.Email)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-3">
+                        <label class="col-form-label col-md-3">Título *</label>
+                        <div class="col-md-9">
+                            <input type="text" name="Titulo" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição do Problema *</label>
+                        <textarea name="Descricao" class="form-control" rows="5" required placeholder="Descreva detalhadamente o problema técnico..."></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-form-label col-md-3">Categoria</label>
+                        <div class="col-md-9">
+                            <select name="Categoria" class="form-select">
+                                @foreach (var cat in ViewData["Categorias"] as string[] ?? new string[0])
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-form-label col-md-3">Prioridade</label>
+                        <div class="col-md-9">
+                            <select name="Prioridade" class="form-select">
+                                @foreach (var pri in ViewData["Prioridades"] as string[] ?? new string[0])
+                                {
+                                    <option value="@pri">@pri</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    @if (ViewData["CanAssign"] as bool? == true)
+                    {
+                        <div class="row mb-3">
+                            <label class="col-form-label col-md-3">Estado</label>
+                            <div class="col-md-9"><select name="Estado" class="form-select">@foreach (var est in ViewData["Estados"] as string[] ?? Array.Empty<string>()) { <option value="@est">@est</option> }</select></div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-form-label col-md-3">Técnico Responsável</label>
+                            <div class="col-md-9"><select name="TecnicoId" class="form-select"><option value="">Não atribuído</option>@foreach (var tecnico in ViewData["Tecnicos"] as List<HelpDeskPro.Models.ApplicationUser> ?? new()) { <option value="@tecnico.Id">@tecnico.NomeCompleto (@tecnico.Email)</option> }</select></div>
+                        </div>
+                    }
+                    <div class="row mb-3">
+                        <label class="col-form-label col-md-3">Prazo de Resolução</label>
+                        <div class="col-md-9">
+                            <input type="datetime-local" name="PrazoResolucao" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-save me-2"></i> Guardar Ticket
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Informação</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    <strong>Número do Ticket:</strong> Será gerado automaticamente<br />
+                    <strong>Cliente:</strong> Será associado ao utilizador autenticado<br />
+                    <strong>Data de Criação:</strong> Data atual
+                </p>
+                <hr />
+                <div class="text-center">
+                    <a asp-action="Index" class="btn btn-outline-primary w-100">
+                        <i class="ti ti-arrow-left me-2"></i> Voltar à Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

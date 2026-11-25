@@ -1,0 +1,17 @@
+@* Preferências visuais guardadas no navegador, sem alterar dados partilhados da base de dados. *@
+@{ ViewData["Title"] = "Definições"; ViewData["ActivePage"] = "Settings"; }
+<div class="page-header"><h1 class="page-header-title">Definições</h1><p class="text-secondary">Preferências desta aplicação neste dispositivo</p></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Aparência</h2></div><div class="card-body"><div class="row align-items-center"><div class="col"><label for="themeMode" class="form-label">Tema</label><div class="text-secondary">Escolhe entre tema claro e escuro.</div></div><div class="col-auto"><select id="themeMode" class="form-select"><option value="light">Claro</option><option value="dark">Escuro</option></select></div></div><div class="mt-3"><button id="saveSettings" class="btn btn-primary" type="button">Guardar preferências</button><span id="settingsSaved" class="text-success ms-2" role="status" hidden>Preferências guardadas.</span></div></div></div>
+@section Scripts { @* Lê e grava o tema local e aplica-o ao documento atual. *@ <script>
+const themeSelect = document.getElementById('themeMode');
+themeSelect.value = localStorage.getItem('helpdesk-theme') || 'light';
+document.getElementById('saveSettings').addEventListener('click', () => {
+    const theme = themeSelect.value;
+    localStorage.setItem('helpdesk-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    document.getElementById('settingsSaved').hidden = false;
+});
+themeSelect.addEventListener('change', () => {
+    document.documentElement.setAttribute('data-bs-theme', themeSelect.value);
+});
+</script> }

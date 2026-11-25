@@ -1,0 +1,139 @@
+@* Lista tickets visíveis para o utilizador; filtros GET preservam os critérios no URL. *@
+@model List<HelpDeskPro.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Tickets";
+    ViewData["ActivePage"] = "Tickets";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Gestão de Tickets</h1>
+    <div class="page-header-description">Acompanhe e gerencie todos os pedidos de suporte técnico</div>
+    <div class="page-header-actions">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-2"></i> Novo Ticket
+        </a>
+    </div>
+</div>
+
+<form method="get" class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="pesquisa" class="form-control" placeholder="Pesquisar tickets..." value="@ViewData["Pesquisa"]" />
+            </div>
+            <div class="col-md-2">
+                <select name="estado" class="form-select">
+                    <option value="">Todos os Estados</option>
+                    @foreach (var estado in ViewData["Estados"] as string[] ?? new string[0])
+                    {
+                        <option value="@estado" selected="@(Equals(ViewData["Estado"], estado))">@estado</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="prioridade" class="form-select">
+                    <option value="">Todas as Prioridades</option>
+                    @foreach (var prioridade in ViewData["Prioridades"] as string[] ?? new string[0])
+                    {
+                        <option value="@prioridade" selected="@(Equals(ViewData["Prioridade"], prioridade))">@prioridade</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="categoria" class="form-select">
+                    <option value="">Todas as Categorias</option>
+                    @foreach (var categoria in ViewData["Categorias"] as string[] ?? new string[0])
+                    {
+                        <option value="@categoria" selected="@(Equals(ViewData["Categoria"], categoria))">@categoria</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="tecnico" class="form-select">
+                    <option value="">Todos os Técnicos</option>
+                    @foreach (var tecnico in ViewData["Tecnicos"] as List<HelpDeskPro.Models.ApplicationUser> ?? new List<HelpDeskPro.Models.ApplicationUser>())
+                    {
+                        <option value="@tecnico.Id" selected="@(Equals(ViewData["Tecnico"], tecnico.Id))">@tecnico.NomeCompleto</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nº Ticket</th>
+                            <th>Título</th>
+                            <th>Cliente</th>
+                            <th>Categoria</th>
+                            <th>Prioridade</th>
+                            <th>Estado</th>
+                            <th>Data Criação</th>
+                            <th>Técnico</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+@foreach (var ticket in Model)
+{
+    var prioridadeClass = ticket.Prioridade switch
+    {
+        "Critica" => "badge bg-red-500",
+        "Alta" => "badge bg-orange-500",
+        "Media" => "badge bg-blue-500",
+        _ => "badge bg-green-500"
+    };
+    var estadoClass = ticket.Estado switch
+    {
+        "Resolvido" => "badge bg-green-100 text-green-600",
+        "Fechado" => "badge bg-gray-100 text-gray-600",
+        "EmResolucao" => "badge bg-blue-100 text-blue-600",
+        "AguardarResposta" => "badge bg-orange-100 text-orange-600",
+        _ => "badge bg-blue-50 text-blue-600"
+    };
+    <tr>
+        <td><code>@ticket.NumeroTicket</code></td>
+        <td>@ticket.Titulo</td>
+        <td>@ticket.Cliente?.NomeCompleto ?? "N/A"</td>
+        <td>@ticket.Categoria</td>
+        <td><span class="@prioridadeClass">@ticket.Prioridade</span></td>
+        <td><span class="@estadoClass">@ticket.Estado</span></td>
+        <td>@ticket.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+        <td>@ticket.TecnicoResponsavel?.NomeCompleto ?? "<span class="text-muted">Não atribuído</span>"</td>
+        <td>
+            <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-eye"></i>
+            </a>
+            @if (ViewData["IsAdmin"] as bool? == true || ViewData["IsTecnico"] as bool? == true)
+            {
+                <a asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-warning">
+                    <i class="ti ti-pencil"></i>
+                </a>
+            }
+        </td>
+    </tr>
+}
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="ti ti-ticket text-muted text-3xl mb-3"></i>
+                <p class="text-muted">Nenhum ticket encontrado com os critérios selecionados.</p>
+            </div>
+        }
+    </div>
+</div>

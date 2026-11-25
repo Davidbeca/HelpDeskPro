@@ -1,0 +1,100 @@
+@* Administração de contas: tabela filtrável por texto e tipo de utilizador. *@
+@model List<HelpDeskPro.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Clientes e Utilizadores";
+    ViewData["ActivePage"] = "Users";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Gestão de Utilizadores</h1>
+    <div class="page-header-description">Gerencie clientes, técnicos e administradores do sistema</div>
+    <div class="page-header-actions">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ti ti-plus me-2"></i> Novo Utilizador
+        </a>
+    </div>
+</div>
+
+<form method="get" class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="pesquisa" class="form-control" placeholder="Pesquisar por nome ou email..." value="@ViewData["Pesquisa"]" />
+            </div>
+            <div class="col-md-3">
+                <select name="tipo" class="form-select">
+                    <option value="">Todos os Tipos</option>
+                    @foreach (var tipo in ViewData["Tipos"] as string[] ?? new string[0])
+                    {
+                        <option value="@tipo" selected="@(Equals(ViewData["Tipo"], tipo))">@tipo</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Tipo</th>
+                            <th>Empresa</th>
+                            <th>Departamento</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+@foreach (var user in Model)
+{
+    var tipoBadge = user.TipoConta switch
+    {
+        "Administrador" => "badge bg-red-500",
+        "Tecnico" => "badge bg-blue-500",
+        _ => "badge bg-green-500"
+    };
+    var estadoBadge = user.Ativo ? "badge bg-green-100 text-green-600" : "badge bg-gray-100 text-gray-600";
+    <tr>
+        <td>@(string.IsNullOrWhiteSpace(user.NomeCompleto) ? user.Email : user.NomeCompleto)</td>
+        <td>@user.Email</td>
+        <td><span class="@tipoBadge">@user.TipoConta</span></td>
+        <td>@(user.Empresa ?? "N/A")</td>
+        <td>@(user.Departamento ?? "N/A")</td>
+        <td><span class="@estadoBadge">@(user.Ativo ? "Ativo" : "Inativo")</span></td>
+        <td>
+            <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-eye"></i>
+            </a>
+            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-warning">
+                <i class="ti ti-pencil"></i>
+            </a>
+            <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-outline-red-500">
+                <i class="ti ti-trash"></i>
+            </a>
+        </td>
+    </tr>
+}
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="ti ti-users text-muted text-3xl mb-3"></i>
+                <p class="text-muted">Nenhum utilizador encontrado.</p>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,4 @@
+@* Leitura integral do artigo com categoria, autor e número de visualizações. *@
+@model HelpDeskPro.Models.KnowledgeBaseArticle
+@{ ViewData["Title"] = Model.Titulo; ViewData["ActivePage"] = "KnowledgeBase"; }
+<div class="page-header d-flex justify-content-between"><div><span class="badge bg-blue-lt">@Model.Categoria</span><h1 class="page-header-title mt-2">@Model.Titulo</h1><p class="text-secondary">Por @Model.Autor?.NomeCompleto · @Model.DataCriacao.ToString("dd/MM/yyyy") · @Model.Visualizacoes visualizações</p></div><a asp-action="Index" class="btn btn-outline-secondary">Voltar</a></div><article class="card"><div class="card-body"><div class="article-content" style="white-space: pre-wrap">@Model.Conteudo</div></div></article>

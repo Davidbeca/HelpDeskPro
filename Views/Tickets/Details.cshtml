@@ -1,0 +1,166 @@
+@* Ficha do ticket: dados, comentários, anexos e histórico são carregados pelo controlador. *@
+@model HelpDeskPro.Models.Ticket
+
+@{
+    ViewData["Title"] = "Ticket @" + Model.NumeroTicket;
+    ViewData["ActivePage"] = "Tickets";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Ticket @Model.NumeroTicket</h1>
+    <div class="page-header-description">Detalhes do pedido de suporte técnico</div>
+    <div class="page-header-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+            <i class="ti ti-pencil me-2"></i> Editar
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="ti ti-arrow-left me-2"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Informações do Ticket</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Nº Ticket</label>
+                    <div class="col-md-9"><code>@Model.NumeroTicket</code></div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Título</label>
+                    <div class="col-md-9">@Model.Titulo</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <div class="border rounded p-3 bg-gray-50">@Model.Descricao</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Categoria</label>
+                    <div class="col-md-9">@Model.Categoria</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Prioridade</label>
+                    <div class="col-md-9">
+                        <span class="badge @(Model.Prioridade == "Critica" ? "bg-red-500" : Model.Prioridade == "Alta" ? "bg-orange-500" : Model.Prioridade == "Media" ? "bg-blue-500" : "bg-green-500")">
+                            @Model.Prioridade
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Estado</label>
+                    <div class="col-md-9">
+                        <span class="badge @(Model.Estado == "Resolvido" ? "bg-green-100 text-green-600" : Model.Estado == "Fechado" ? "bg-gray-100 text-gray-600" : Model.Estado == "EmResolucao" ? "bg-blue-100 text-blue-600" : Model.Estado == "AguardarResposta" ? "bg-orange-100 text-orange-600" : "bg-blue-50 text-blue-600")">
+                            @Model.Estado
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Cliente</label>
+                    <div class="col-md-9">@Model.Cliente?.NomeCompleto ?? "N/A"</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Técnico Responsável</label>
+                    <div class="col-md-9">@Model.TecnicoResponsavel?.NomeCompleto ?? "Não atribuído"</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Data de Criação</label>
+                    <div class="col-md-9">@Model.DataCriacao.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Última Atualização</label>
+                    <div class="col-md-9">@(Model.DataAtualizacao?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-3">Prazo de Resolução</label>
+                    <div class="col-md-9">@(Model.PrazoResolucao?.ToString("dd/MM/yyyy HH:mm") ?? "Não definido")</div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                        <i class="ti ti-pencil me-2"></i> Editar Ticket
+                    </a>
+                    @if (Model.Estado != "Resolvido" && Model.Estado != "Fechado")
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+                            <i class="ti ti-tool me-2"></i> Atribuir Técnico
+                        </a>
+                    }
+                    <a asp-controller="KnowledgeBase" asp-action="Index" class="btn btn-outline-info">
+                        <i class="ti ti-book me-2"></i> Base de Conhecimento
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title">Histórico de Alterações</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Historico.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor Antigo</th>
+                                    <th>Valor Novo</th>
+                                    <th>Utilizador</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var hist in Model.Historico.OrderByDescending(h => h.DataAlteracao))
+                            {
+                                <tr>
+                                    <td>@hist.CampoAlterado</td>
+                                    <td>@hist.ValorAntigo ?? "-"</td>
+                                    <td>@hist.ValorNovo ?? "-"</td>
+                                    <td>@hist.Utilizador?.NomeCompleto ?? "Sistema"</td>
+                                    <td>@hist.DataAlteracao.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center small">Sem histórico de alterações.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row row-cards mt-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><h2 class="card-title">Comentários e atualizações</h2></div>
+            <div class="card-body">
+                @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+                @foreach (var comment in Model.Comentarios.Where(c => !c.Interno || (ViewData["IsAdmin"] as bool? == true || ViewData["IsTecnico"] as bool? == true)).OrderBy(c => c.DataCriacao))
+                {
+                    <div class="border-bottom py-3"><div class="d-flex justify-content-between"><strong>@comment.Utilizador?.NomeCompleto</strong><small class="text-secondary">@comment.DataCriacao.ToString("dd/MM/yyyy HH:mm") @if (comment.Interno) { <span class="badge bg-orange-lt">Nota interna</span> }</small></div><div class="mt-2" style="white-space: pre-wrap">@comment.Conteudo</div></div>
+                }
+                @if (!Model.Comentarios.Any(c => !c.Interno || (ViewData["IsAdmin"] as bool? == true || ViewData["IsTecnico"] as bool? == true))) { <p class="text-secondary">Ainda não existem atualizações.</p> }
+                <form asp-action="AddComment" method="post" class="mt-4"><input type="hidden" name="ticketId" value="@Model.Id" /><div class="mb-3"><label for="conteudo" class="form-label">Adicionar atualização</label><textarea id="conteudo" name="conteudo" class="form-control" rows="3" required maxlength="5000"></textarea></div>@if (ViewData["IsAdmin"] as bool? == true || ViewData["IsTecnico"] as bool? == true) { <div class="form-check mb-3"><input type="checkbox" name="interno" value="true" class="form-check-input" id="interno" /><label for="interno" class="form-check-label">Nota interna, visível apenas à equipa</label></div> }<button class="btn btn-primary" type="submit">Publicar atualização</button></form>
+            </div>
+        </div>
+        <div class="card mt-3"><div class="card-header"><h2 class="card-title">Anexos (@Model.Anexos.Count)</h2></div><div class="card-body">@foreach (var attachment in Model.Anexos.OrderByDescending(a => a.DataUpload)) { <div class="d-flex justify-content-between border-bottom py-2"><div><i class="ti ti-paperclip"></i> <a asp-action="DownloadAttachment" asp-route-id="@attachment.Id">@attachment.NomeFicheiro</a><small class="text-secondary ms-2">@((attachment.Tamanho / 1024.0).ToString("0.#")) KB · @attachment.DataUpload.ToString("dd/MM/yyyy HH:mm")</small></div></div> }@if (!Model.Anexos.Any()) { <p class="text-secondary mb-0">Sem ficheiros anexados.</p> }<form asp-action="UploadAttachment" method="post" enctype="multipart/form-data" class="mt-3"><input type="hidden" name="ticketId" value="@Model.Id" /><div class="input-group"><input type="file" name="ficheiro" class="form-control" required /><button class="btn btn-outline-primary" type="submit"><i class="ti ti-upload"></i> Anexar</button></div><small class="form-hint">Até 10 MB. Imagens, documentos, texto e ZIP.</small></form></div></div>
+    </div>
+</div>

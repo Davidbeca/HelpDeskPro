@@ -1,0 +1,258 @@
+﻿@using System.Text.Json
+
+@{
+    var priorityJson = JsonSerializer.Serialize(ViewData["TicketsPorPrioridade"] ?? Array.Empty<object>(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    var monthJson = JsonSerializer.Serialize(ViewData["TicketsPorMes"] ?? Array.Empty<object>(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+}
+
+@* Dashboard: apresenta indicadores, atividade recente, tickets recentes e gráficos calculados pelo HomeController. *@
+@using HelpDeskPro.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Dashboard</h1>
+    <div class="page-header-description">Monitorize o desempenho da sua equipa e o estado dos tickets</div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="font-regular text-primary">@ViewData["TotalTickets"]</h2>
+                        <span class="text-muted text-uppercase font-small">Total de Tickets</span>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="ti ti-ticket text-primary text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="font-regular text-red-500">@ViewData["TicketsNovos"]</h2>
+                        <span class="text-muted text-uppercase font-small">Tickets Novos</span>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="ti ti-plus text-red-500 text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-xl-2 col-md-4 col-6"><div class="card"><div class="card-body"><div class="text-secondary">Abertos</div><div class="h1 mb-0 text-primary">@ViewData["TicketsAbertos"]</div></div></div></div>
+    <div class="col-xl-2 col-md-4 col-6"><div class="card"><div class="card-body"><div class="text-secondary">Pendentes</div><div class="h1 mb-0 text-warning">@ViewData["TicketsPendentes"]</div></div></div></div>
+    <div class="col-xl-2 col-md-4 col-6"><div class="card"><div class="card-body"><div class="text-secondary">Fechados</div><div class="h1 mb-0 text-secondary">@ViewData["TicketsFechados"]</div></div></div></div>
+    <div class="col-xl-3 col-md-6 col-6"><div class="card"><div class="card-body"><div class="text-secondary">Técnicos disponíveis</div><div class="h1 mb-0">@ViewData["TecnicosDisponiveis"]</div></div></div></div>
+    <div class="col-xl-3 col-md-6 col-12"><div class="card"><div class="card-body"><div class="text-secondary">Tempo médio de resolução</div><div class="h1 mb-0">@(((double?)ViewData["TempoMedioResolucao"] ?? 0).ToString("0.0")) h</div></div></div></div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="font-regular text-blue-500">@ViewData["TicketsEmAndamento"]</h2>
+                        <span class="text-muted text-uppercase font-small">Em Andamento</span>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="ti ti-clock text-blue-500 text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h2 class="font-regular text-green-500">@ViewData["TicketsResolvidos"]</h2>
+                        <span class="text-muted text-uppercase font-small">Resolvidos</span>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="ti ti-check text-green-500 text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Últimos Tickets</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nº Ticket</th>
+                                <th>Título</th>
+                                <th>Cliente</th>
+                                <th>Prioridade</th>
+                                <th>Estado</th>
+                                <th>Técnico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+@foreach (var ticket in ViewData["UltimosTickets"] as List<Ticket> ?? new List<Ticket>())
+{
+    var prioridadeClass = ticket.Prioridade switch
+    {
+        "Critica" => "text-red-500",
+        "Alta" => "text-orange-500",
+        "Media" => "text-blue-500",
+        _ => "text-green-500"
+    };
+    var estadoClass = ticket.Estado switch
+    {
+        "Resolvido" => "bg-green-100 text-green-600",
+        "Fechado" => "bg-gray-100 text-gray-600",
+        "EmResolucao" => "bg-blue-100 text-blue-600",
+        "AguardarResposta" => "bg-orange-100 text-orange-600",
+        _ => "bg-blue-50 text-blue-600"
+    };
+    <tr>
+        <td><code>@ticket.NumeroTicket</code></td>
+        <td>@ticket.Titulo</td>
+        <td>@ticket.Cliente?.NomeCompleto ?? "N/A"</td>
+        <td><span class="badge @prioridadeClass">@ticket.Prioridade</span></td>
+        <td><span class="badge @estadoClass">@ticket.Estado</span></td>
+        <td>@ticket.TecnicoResponsavel?.NomeCompleto ?? "Não atribuído"</td>
+    </tr>
+}
+                        </tbody>
+                    </table>
+                </div>
+                @if (!(ViewData["UltimosTickets"] as List<Ticket> ?? new List<Ticket>()).Any())
+                {
+                    <p class="text-muted text-center">Nenhum ticket encontrado.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Tickets" asp-action="Create" class="btn btn-primary">
+                        <i class="ti ti-plus me-2"></i> Criar Novo Ticket
+                    </a>
+                    <a asp-controller="Tickets" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="ti ti-search me-2"></i> Ver Todos os Tickets
+                    </a>
+                    @if (ViewData["IsTecnico"] as bool? == true)
+                    {
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-estado="Novo" class="btn btn-outline-success">
+                            <i class="ti ti-arrow-right me-2"></i> Tickets Novos
+                        </a>
+                    }
+                    <a asp-controller="KnowledgeBase" asp-action="Index" class="btn btn-outline-info">
+                        <i class="ti ti-book me-2"></i> Base de Conhecimento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12"><div class="card"><div class="card-header"><h2 class="card-title">Atividade recente</h2></div><div class="list-group list-group-flush">
+        @foreach (var activity in ViewData["AtividadeRecente"] as List<TicketHistory> ?? new List<TicketHistory>())
+        {
+            <a asp-controller="Tickets" asp-action="Details" asp-route-id="@activity.TicketId" class="list-group-item list-group-item-action"><div class="d-flex justify-content-between"><span><strong>@activity.Ticket?.NumeroTicket</strong> · @activity.CampoAlterado: @activity.ValorNovo</span><small class="text-secondary">@activity.Utilizador?.NomeCompleto · @activity.DataAlteracao.ToString("dd/MM HH:mm")</small></div></a>
+        }
+        @if (!(ViewData["AtividadeRecente"] as List<TicketHistory> ?? new List<TicketHistory>()).Any()) { <div class="list-group-item text-secondary">Ainda não existe atividade registada.</div> }
+    </div></div></div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Tickets por Prioridade</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="priorityChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Estado dos Tickets</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var priorityCtx = document.getElementById('priorityChart').getContext('2d');
+        var priorityData = @Html.Raw(priorityJson);
+        new Chart(priorityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: priorityData.map(d => d.prioridade),
+                datasets: [{
+                    data: priorityData.map(d => d.count),
+                    backgroundColor: ['#4ade80', '#3b82f6', '#f97316', '#ef4444'],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        var statusCtx = document.getElementById('statusChart').getContext('2d');
+        var statusData = @Html.Raw(monthJson);
+        new Chart(statusCtx, {
+            type: 'line',
+            data: {
+                labels: statusData.map(d => d.mes),
+                datasets: [{
+                    label: 'Tickets por Mês',
+                    data: statusData.map(d => d.count),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+}

@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "HelpDesk Pro validation build",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"HelpDeskPro.csproj",
+				"--no-restore",
+				"-p:Configuration=Validation"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}

@@ -1,0 +1,52 @@
+@* Confirmação visual; a remoção só é executada pelo POST protegido do controlador. *@
+@model HelpDeskPro.Models.Ticket
+
+@{
+    ViewData["Title"] = "Eliminar Ticket";
+    ViewData["ActivePage"] = "Tickets";
+}
+
+<div class="page-header">
+    <h1 class="page-header-title">Eliminar Ticket</h1>
+    <div class="page-header-description">Tem a certeza que pretende eliminar este ticket?</div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-red-50 border-red-200">
+                <h5 class="card-title text-red-600">Confirmação de Eliminação</h5>
+            </div>
+            <div class="card-body">
+                <p>Tem a certeza que pretende eliminar o ticket <strong>@Model.NumeroTicket</strong>?</p>
+                <p class="text-muted small">
+                    Esta ação é irreversível. Todos os comentários, anexos e histórico associados a este ticket serão eliminados permanentemente.
+                </p>
+                
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-4">Título</label>
+                    <div class="col-md-8">@Model.Titulo</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-4">Cliente</label>
+                    <div class="col-md-8">@Model.Cliente?.NomeCompleto ?? "N/A"</div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-form-label col-md-4">Estado</label>
+                    <div class="col-md-8">@Model.Estado</div>
+                </div>
+
+                <form asp-action="DeleteConfirmed" method="post">
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-red-500">
+                            <i class="ti ti-trash me-2"></i> Sim, Eliminar Ticket
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                            <i class="ti ti-arrow-left me-2"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
